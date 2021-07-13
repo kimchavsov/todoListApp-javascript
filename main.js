@@ -104,13 +104,13 @@ container.appendChild(createButton())
 container.append(createForm());
 container.appendChild(createTable());
 
+// Reset form field
 function clearForm() {
   const nameInput = document.querySelector('#name');
   const descInput = document.querySelector('#desc');
   
   nameInput.value = '';
   descInput.value = '';
-
 }
 
 // Task Object
@@ -135,6 +135,7 @@ function TaskManager() {
     checkStorage();
     tableBody.innerHTML = "";
     this.taskList.forEach((task) => {
+      console.log(task)
       const htmlTask = `
       <tr>
         <td>${task.name}</td>
@@ -165,9 +166,8 @@ function TaskManager() {
 // Call taskManger constructor function
 const taskManager = new TaskManager;
 // Create A few tasks
-taskManager.addNewTask('Hello', 'This is hello');
-taskManager.addNewTask('Hel3241lo', 'This qwrwqeris hello');
-taskManager.addNewTask('Helqwerlo', 'This is he342llo');
+taskManager.addNewTask('Do homework', 'Finish chapter 1');
+taskManager.addNewTask('Do housework', 'Wash dishes');
 taskManager.showTask();
 
 // When the add task button clicked the form appear

@@ -20,7 +20,7 @@
   width: 30%; /* Could be more or less, depending on screen size */}
 
 /* Full-width input fields */
-.form-container input[type=text], .form-container input[type=password], .form-container input[type=number]{
+.form-container input[type=text]{
   width: 100%;
   padding: 15px;
   margin: 5px 0 22px 0;
