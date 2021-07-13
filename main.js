@@ -1,5 +1,6 @@
 const container = document.querySelector('.container');
 
+// UI Setup
 function createHeader() {
   const header = document.createElement('div');
   const title = document.createElement('h1')
@@ -16,24 +17,6 @@ const createButton = function() {
   btn.classList.add('btn-outline-primary')
   return btn
 }
-
-// Task Object
-function Task(name, desc) {
-  this.name = name;
-  this.desc = desc
-}
-
-// Task Manager object 
-function TaskManager() {
-  this.taskList = [];
-
-  // Add new task to the taskList
-  this.addNewTask = (name, desc) => {
-    let task = new Task(name, desc);
-    this.taskList.push(task);
-  }
-}
-
 // Form pop up when the button is clicked
 function createForm() {
   const divForm = document.createElement('div');
@@ -48,8 +31,8 @@ function createForm() {
   form.appendChild(formTitle);
   form.appendChild(createLabel('name', 'text', 'Name'));
   form.appendChild(createLabel('desc', 'text', 'Description'));
-  form.appendChild(createFormButton('Add', 'btn-outline-success'));
-  form.appendChild(createFormButton('Close', 'btn-outline-danger'));
+  form.appendChild(createFormButton('Add', 'btn-outline-success', 'add-task'));
+  form.appendChild(createFormButton('Close', 'btn-outline-danger', 'close-form'));
   
   divForm.appendChild(form);
   divForm.style.display = 'none';
@@ -73,10 +56,12 @@ function createLabel(useFor, type, text) {
   return divLabel;
 }
 
-function createFormButton(text, style) {
+function createFormButton(text, style, type) {
   const divBtn = document.createElement('div');
   const btn = document.createElement('button');
 
+  divBtn.classList.add('btn-sect')
+  btn.id = type;
   btn.type = 'button';
   btn.innerText = text;
   btn.classList.add('btn');
@@ -90,9 +75,12 @@ function createFormButton(text, style) {
 const createTable = function() {
   const table = document.createElement('table');
   const thead = document.createElement('thead');
-  const tr = document.createElement('tr')
+  const tr = document.createElement('tr');
+  const tbody = document.createElement('tbody')
   
   table.classList.add('table')
+  tbody.id = 'task-table-body';
+
   tr.appendChild(createColumn('Name'));
   tr.appendChild(createColumn('Description'));
   tr.appendChild(createColumn('Status'));
@@ -100,8 +88,8 @@ const createTable = function() {
 
   thead.appendChild(tr);
   table.appendChild(thead);
+  table.appendChild(tbody);
   return table
-
 }
 const createColumn = function(text) {
   const th = document.createElement('th');
@@ -110,17 +98,139 @@ const createColumn = function(text) {
   return th
 }
 
+// Initializae UI
 container.appendChild(createHeader())
 container.appendChild(createButton())
 container.append(createForm());
 container.appendChild(createTable());
 
+function clearForm() {
+  const nameInput = document.querySelector('#name');
+  const descInput = document.querySelector('#desc');
+  
+  nameInput.value = '';
+  descInput.value = '';
+
+}
+
+// Task Object
+function Task(name, desc, status = 'Not Complete') {
+  this.name = name;
+  this.desc = desc;
+  this.status = status
+}
+
+// Task Manager object 
+function TaskManager() {
+  this.taskList = [];
+
+  // Add new task to the taskList
+  this.addNewTask = (name, desc) => {
+    let task = new Task(name, desc);
+    this.taskList.push(task);
+  }
+
+  this.showTask = () => {
+    const tableBody = document.querySelector('#task-table-body');
+    checkStorage();
+    tableBody.innerHTML = "";
+    this.taskList.forEach((task) => {
+      const htmlTask = `
+      <tr>
+        <td>${task.name}</td>
+        <td>${task.desc}</td>
+        <td><button class="btn status-button btn-outline-secondary">${task.status}</button></td>
+        <td><button class="delete btn btn-danger">Delete</button></td>
+      </tr>`;
+      tableBody.insertAdjacentHTML('afterbegin', htmlTask);
+    }) 
+  }
+  
+  this.deleteTask = (currentTask) => {
+    this.taskList.splice(currentTask, 1);
+  }
+
+  this.findTask = (name) => {
+    if (this.taskList.length == 0 || this.taskList == null) {
+      return;
+    }
+    for (task of this.taskList){
+      if (task.name === name) {
+        return this.taskList.indexOf(task);
+      } 
+    }
+  }
+}
+
+// Call taskManger constructor function
+const taskManager = new TaskManager;
+// Create A few tasks
+taskManager.addNewTask('Hello', 'This is hello');
+taskManager.addNewTask('Hel3241lo', 'This qwrwqeris hello');
+taskManager.addNewTask('Helqwerlo', 'This is he342llo');
+taskManager.showTask();
+
+// When the add task button clicked the form appear
 const btnAddNew = document.querySelector('.btn')
 btnAddNew.addEventListener('click', () => {
   document.getElementById('myForm').style.display = 'block';
 })
 
-const btnCloseForm = document.querySelector('.btn-outline-danger');
+// Add New task to the list
+const btnAddTask = document
+  .querySelector('#add-task')
+  .addEventListener('click', () => {
+    const nameInput = document.querySelector('#name');
+    const descInput = document.querySelector('#desc');
+
+    if (nameInput.value === '' || descInput === ''){
+      alert('Please, fill all the fields')
+      return
+    } else {
+      taskManager.addNewTask(nameInput.value, descInput.value);
+      updateStorage()
+      taskManager.showTask();
+      document.getElementById('myForm').style.display = 'none';
+      clearForm()
+    }
+  })
+
+// Form close button
+const btnCloseForm = document.querySelector('#close-form');
 btnCloseForm.addEventListener('click', () => {
   document.getElementById('myForm').style.display = 'none';
+  clearForm()
 })
+
+// Add Event to table with delete and change status function
+const table = document
+  .querySelector('table')
+  .addEventListener('click', (e) => {
+    const currentTarget = e.target.parentNode.parentNode.childNodes[1];
+    if (e.target.innerHTML == 'Delete') {
+      taskManager.deleteTask(taskManager.findTask(currentTarget.textContent))
+    }
+    if (e.target.classList.contains('status-button')) {
+      const statusButton = e.target.parentNode.parentNode.childNodes[5].childNodes[0]
+      if (statusButton.textContent === 'Not Complete') {
+        taskManager.taskList[taskManager.findTask(currentTarget.textContent)].status = 'Completed'
+      } else {
+        taskManager.taskList[taskManager.findTask(currentTarget.textContent)].status = 'Not Complete'
+      }
+    }
+    updateStorage()
+    taskManager.showTask()
+  });
+
+// Setup Browser storage
+// Local Storage
+function updateStorage() {
+  localStorage.setItem('tasks', JSON.stringify(taskManager.taskList));
+}
+
+// Check local storage is exist
+function checkStorage() {
+  if(localStorage.getItem('tasks')) {
+    taskManager.taskList = JSON.parse(localStorage.getItem('tasks'))
+  }
+}
