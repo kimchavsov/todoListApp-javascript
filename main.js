@@ -17,6 +17,7 @@ const createButton = function() {
   btn.classList.add('btn-outline-primary')
   return btn
 }
+
 // Form pop up when the button is clicked
 function createForm() {
   const divForm = document.createElement('div');
@@ -123,51 +124,49 @@ function Task(name, desc, status = 'Not Complete') {
 // Task Manager object 
 function TaskManager() {
   this.taskList = [];
-
-  // Add new task to the taskList
-  this.addNewTask = (name, desc) => {
-    let task = new Task(name, desc);
-    this.taskList.push(task);
-  }
-
-  this.showTask = () => {
-    const tableBody = document.querySelector('#task-table-body');
-    checkStorage();
-    tableBody.innerHTML = "";
-    this.taskList.forEach((task) => {
-      console.log(task)
-      const htmlTask = `
-      <tr>
-        <td>${task.name}</td>
-        <td>${task.desc}</td>
-        <td><button class="btn status-button btn-outline-secondary">${task.status}</button></td>
-        <td><button class="delete btn btn-danger">Delete</button></td>
-      </tr>`;
-      tableBody.insertAdjacentHTML('afterbegin', htmlTask);
-    }) 
-  }
-  
-  this.deleteTask = (currentTask) => {
-    this.taskList.splice(currentTask, 1);
-  }
-
-  this.findTask = (name) => {
-    if (this.taskList.length == 0 || this.taskList == null) {
-      return;
-    }
-    for (task of this.taskList){
-      if (task.name === name) {
-        return this.taskList.indexOf(task);
-      } 
-    }
-  }
 }
 
+TaskManager.prototype.addNewTask = function(name, desc) {
+  let task = new Task(name, desc);
+  this.taskList.push(task);
+};
+
+TaskManager.prototype.showTask = function() {
+  const tableBody = document.querySelector('#task-table-body');
+  checkStorage();
+  tableBody.innerHTML = "";
+  this.taskList.forEach((task) => {
+    console.log(task)
+    const htmlTask = `
+    <tr>
+      <td>${task.name}</td>
+      <td>${task.desc}</td>
+      <td><button class="btn status-button btn-outline-secondary">${task.status}</button></td>
+      <td><button class="delete btn btn-danger">Delete</button></td>
+    </tr>`;
+    tableBody.insertAdjacentHTML('afterbegin', htmlTask);
+  }) 
+};
+
+TaskManager.prototype.deleteTask = function(currentTask) {
+  this.taskList.splice(currentTask, 1);
+};
+
+TaskManager.prototype.findTask = function(name) {
+  if (this.taskList.length == 0 || this.taskList == null) {
+    return;
+  }
+  for (task of this.taskList){
+    if (task.name === name) {
+      return this.taskList.indexOf(task);
+    } 
+  }
+};
+
 // Call taskManger constructor function
-const taskManager = new TaskManager;
-// Create A few tasks
-taskManager.addNewTask('Do homework', 'Finish chapter 1');
-taskManager.addNewTask('Do housework', 'Wash dishes');
+let taskManager = new TaskManager();
+// Create A few tasks Manager.showTask();
+taskManager.addNewTask('Do homework', 'Finish the chapter1')
 taskManager.showTask();
 
 // When the add task button clicked the form appear
